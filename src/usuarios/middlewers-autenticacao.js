@@ -5,14 +5,8 @@ const tokenObject = require("./token");
 const self = (module.exports = {
   local: (req, res, next) => {
     passport.authenticate("local", { session: false }, (error, user, info) => {
-      if (error && error.name === "InvalidArgumentError") {
-        return res
-          .sendStatus(401)
-          .json({ message: "Usuário ou senha inválidos" });
-      }
-
-      if (!user) {
-        return res.sendStatus(400);
+      if (error) {
+        return next(error);
       }
       req.user = user;
       return next();
@@ -27,14 +21,8 @@ const self = (module.exports = {
   },
   bearer: (req, res, next) => {
     passport.authenticate("bearer", { session: false }, (error, user, info) => {
-      if (error && error.name === "JsonWebTokenError") {
-        return res.status(401).json({ message: "Token inválido" });
-      }
-
-      if (error && error.name === "TokenExpiredError") {
-        return res
-          .status(401)
-          .json({ message: `Token expirado em  ${error.expiredAt}` });
+      if (error) {
+        return next(error);
       }
 
       if (!user) {

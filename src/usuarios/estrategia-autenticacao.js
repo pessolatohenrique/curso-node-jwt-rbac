@@ -3,7 +3,7 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const BearerStategy = require("passport-http-bearer").Strategy;
 const Usuario = require("./usuarios-modelo");
-const { InvalidArgumentError } = require("../erros");
+const { AuthError } = require("../erros");
 const tokenObject = require("./token");
 
 passport.use(
@@ -16,15 +16,15 @@ passport.use(
     async (email, password, done) => {
       try {
         const usuario = await Usuario.buscaPorEmail(email);
-        console.log("Usuario", usuario);
-        const verificaSenha = await bcrypt.compare(password, usuario.senha);
 
         if (!usuario) {
-          throw new InvalidArgumentError("Usuário não encontrado");
+          throw new AuthError("Usuário não encontrado");
         }
 
+        const verificaSenha = await bcrypt.compare(password, usuario.senha);
+
         if (!verificaSenha) {
-          throw new InvalidArgumentError("Usuário ou senha inválidos");
+          throw new AuthError("Usuário ou senha inválidos");
         }
 
         done(null, usuario);
