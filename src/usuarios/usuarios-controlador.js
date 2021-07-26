@@ -70,7 +70,7 @@ module.exports = {
       res.status(500).json({ erro: erro });
     }
   },
-
+  // teste
   verifica_email: async (req, res) => {
     try {
       const { user } = req;
