@@ -1,4 +1,5 @@
 const db = require("../../database");
+const ac = require("../usuarios/regras-acesso");
 
 module.exports = {
   adiciona: (post) => {
@@ -63,9 +64,10 @@ module.exports = {
 
   lista: (user) => {
     return new Promise((resolve, reject) => {
-      const queryUser = user
-        ? "SELECT * FROM posts"
-        : "SELECT titulo, conteudo FROM posts";
+      const permission = ac.can(user.cargo).readAny("post");
+      const attributes = permission.attributes.join(",");
+
+      const queryUser = `SELECT ${attributes} FROM posts`;
 
       db.all(queryUser, (erro, resultados) => {
         if (erro) {
