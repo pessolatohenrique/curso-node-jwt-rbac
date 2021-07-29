@@ -2,6 +2,12 @@ const Post = require("./posts-modelo");
 const { NotFoundError } = require("../erros");
 
 module.exports = {
+  /**
+   * insert post into database
+   * @param {object} request request from API
+   * @param {object} response response from AP
+   * @param {object} next next request or middleware
+   */
   adiciona: async (req, res, next) => {
     try {
       const user = await req.user;

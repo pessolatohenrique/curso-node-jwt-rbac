@@ -5,6 +5,9 @@ const validacoes = require("../validacoes-comuns");
 
 const SALTOS_BCRYPT = 12;
 
+/**
+ * represents User model
+ */
 class Usuario {
   constructor(usuario) {
     this.id = usuario.id;
@@ -17,6 +20,9 @@ class Usuario {
     this.valida();
   }
 
+  /**
+   * @throws InvalidArgumentError
+   */
   async adiciona() {
     if (await Usuario.buscaPorEmail(this.email)) {
       throw new InvalidArgumentError("O usuário já existe!");
