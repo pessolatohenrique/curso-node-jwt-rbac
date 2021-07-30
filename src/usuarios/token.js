@@ -3,6 +3,7 @@ const crypto = require("crypto");
 const moment = require("moment");
 const allowListRefreshToken = require("../../redis/allowlist-refresh-token");
 const blocklistAccessToken = require("../../redis/manipula-blocklist");
+const forgotListPassword = require("../../redis/forgot-password-token");
 const { InvalidArgumentError } = require("../erros");
 
 function criaToken(id, [timeQtd, timeUnit]) {
@@ -87,6 +88,21 @@ module.exports = {
       await verificaTokenBlocklist(token, this.blocklist);
       const payload = jwt.verify(token, process.env.JWT_KEY);
       return payload.id;
+    },
+  },
+  esqueciSenha: {
+    lista: forgotListPassword,
+    expiracao: [1, "h"],
+    async cria(id) {
+      const forgotToken = await criaTokenOpaco(id, this.expiracao, this.lista);
+      return forgotToken;
+    },
+    async verifica(token) {
+      const forgotToken = await verificaTokenOpaco(token, this.lista);
+      return forgotToken;
+    },
+    async invalida(token) {
+      return invalidaTokenOpaco(token, this.lista);
     },
   },
 };

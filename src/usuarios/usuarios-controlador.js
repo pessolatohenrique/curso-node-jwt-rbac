@@ -1,7 +1,7 @@
 const Usuario = require("./usuarios-modelo");
 const { InvalidArgumentError, InternalServerError } = require("../erros");
 const tokenObject = require("./token");
-const { EmailVerificacao } = require("./email");
+const { EmailVerificacao, EmailEsqueciSenha } = require("./email");
 
 function geraEndereco(token) {
   return `${process.env.BASE_URL}/usuario/verifica_email/${token}`;
@@ -70,7 +70,6 @@ module.exports = {
       res.status(500).json({ erro: erro });
     }
   },
-  // teste
   verifica_email: async (req, res) => {
     try {
       const { user } = req;
@@ -80,6 +79,34 @@ module.exports = {
     } catch (erro) {
       console.log(erro);
       res.status(500).json({ erro: erro });
+    }
+  },
+  esqueci_senha: async (req, res, next) => {
+    try {
+      const { email } = req.body;
+      const user = await Usuario.buscaPorEmail(email);
+      const token = await tokenObject.esqueciSenha.cria(user.id);
+      const emailForgot = new EmailEsqueciSenha(user, token);
+
+      emailForgot.enviaEmail();
+      res
+        .status(200)
+        .json({ message: "Verifique o seu e-mail para redefinir a senha" });
+    } catch (erro) {
+      next(erro);
+    }
+  },
+  redefinir_senha: async (req, res, next) => {
+    try {
+      const { token, password } = req.body;
+      const id = await tokenObject.esqueciSenha.verifica(token);
+      const user = await Usuario.buscaPorId(id);
+      await user.atualizaSenha(password);
+      await tokenObject.esqueciSenha.invalida(token);
+
+      res.status(200).json({ message: "Senha redefinida com sucesso!" });
+    } catch (erro) {
+      next(erro);
     }
   },
 };

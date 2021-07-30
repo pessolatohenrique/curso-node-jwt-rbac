@@ -48,4 +48,15 @@ class EmailVerificacao extends Email {
   }
 }
 
-module.exports = { EmailVerificacao };
+class EmailEsqueciSenha extends Email {
+  constructor(usuario, token) {
+    super();
+    this.from = '"Blog do Código <noreply@blogdocodigo.com.br>"';
+    this.to = usuario.email;
+    this.subject = "Blog do Código | Esqueci minha senha";
+    this.text = `Olá! Segue token para redefinir a senha: `;
+    this.html = `<h1>Olá!</h1> <p>Segue token para redefinir a senha: ${token}</p>`;
+  }
+}
+
+module.exports = { EmailVerificacao, EmailEsqueciSenha };

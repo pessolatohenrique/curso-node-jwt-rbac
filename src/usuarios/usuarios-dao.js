@@ -125,4 +125,23 @@ module.exports = {
       );
     });
   },
+
+  modificaSenha: (usuario) => {
+    return new Promise((resolve, reject) => {
+      db.run(
+        `
+          UPDATE usuarios
+          SET senha = ?
+          WHERE id = ?
+        `,
+        [usuario.senha, usuario.id],
+        (erro) => {
+          if (erro) {
+            return reject("Erro ao modificar a senha");
+          }
+          return resolve();
+        }
+      );
+    });
+  },
 };

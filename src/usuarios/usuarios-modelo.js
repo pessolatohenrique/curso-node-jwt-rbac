@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const usuariosDao = require("./usuarios-dao");
-const { InvalidArgumentError } = require("../erros");
+const { InvalidArgumentError, UserNotFoundError } = require("../erros");
 const validacoes = require("../validacoes-comuns");
 
 const SALTOS_BCRYPT = 12;
@@ -20,6 +20,11 @@ class Usuario {
     this.valida();
   }
 
+  async criptografaSenha() {
+    const senha = await bcrypt.hash(this.senha, SALTOS_BCRYPT);
+    return senha;
+  }
+
   /**
    * @throws InvalidArgumentError
    */
@@ -28,11 +33,17 @@ class Usuario {
       throw new InvalidArgumentError("O usuário já existe!");
     }
 
-    this.senha = await bcrypt.hash(this.senha, SALTOS_BCRYPT);
+    this.senha = await this.criptografaSenha();
 
     await usuariosDao.adiciona(this);
     const usuario = await Usuario.buscaPorEmail(this.email);
     return usuario;
+  }
+
+  async atualizaSenha(senha) {
+    this.senha = senha;
+    this.senha = await this.criptografaSenha();
+    await usuariosDao.modificaSenha(this);
   }
 
   async verificaEmail() {
@@ -70,7 +81,7 @@ class Usuario {
   static async buscaPorEmail(email) {
     const usuario = await usuariosDao.buscaPorEmail(email);
     if (!usuario) {
-      return null;
+      throw new UserNotFoundError();
     }
 
     return new Usuario(usuario);

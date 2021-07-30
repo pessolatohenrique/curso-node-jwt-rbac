@@ -4,6 +4,7 @@ const port = 3000;
 const { InvalidArgumentError } = require("./src/erros");
 require("./redis/blocklist");
 require("./redis/allowlist-refresh-token");
+require("./redis/forgot-password-token");
 
 const routes = require("./rotas");
 routes(app);
@@ -17,6 +18,7 @@ app.use((error, req, res, next) => {
   const errors_status = {
     InvalidArgumentError: 400,
     NotFoundError: 404,
+    UserNotFoundError: 401,
     AuthError: 401,
     JsonWebTokenError: 401,
     TokenExpiredError: 401,

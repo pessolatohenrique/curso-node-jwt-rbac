@@ -26,9 +26,17 @@ class AuthError extends Error {
   }
 }
 
+class UserNotFoundError extends Error {
+  constructor() {
+    super("User not found in the database");
+    this.name = "UserNotFoundError";
+  }
+}
+
 module.exports = {
   InvalidArgumentError,
   InternalServerError,
   NotFoundError,
   AuthError,
+  UserNotFoundError,
 };
